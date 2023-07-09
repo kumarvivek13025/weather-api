@@ -1,30 +1,26 @@
-const request = require('request')
+const request = require('request');
 
 const geocode = (address, callback) => {
-    const request = require('request');
+  const apiKey = '188dd905c9cfaff32792f4de02f51d39';
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(address)}&appid=${apiKey}`;
 
-    const accessKey = '51423678829ddb1abed6fffa1787d226';
+  request({ url, json: true }, (error, { body }) => {
+    if (error) {
+      callback('Unable to connect to the weather service!', undefined);
+    } else if (body.cod && body.message) {
+      callback('Unable to find location. Try another search.', undefined);
+    } else {
+      const latitude = body.coord.lat;
+      const longitude = body.coord.lon;
+      const location = body.name;
 
-    const url = `https://api.weatherstack.com/forecast?access_key=${accessKey}&query=${address}`;
+      callback(undefined, {
+        latitude,
+        longitude,
+        location
+      });
+    }
+  });
+};
 
-request({ url, json: true }, (error, { body }) => {
-  if (error) {
-    callback('Unable to connect to the weather service!', undefined);
-  } else if (body.error) {
-    callback('Unable to find location. Try another search.', undefined);
-  } else {
-    const latitude = body.location.lat;
-    const longitude = body.location.lon;
-    const location = body.location.name;
-
-    callback(undefined, {
-      latitude,
-      longitude,
-      location
-    });
-  }
-});
-
-}
-
-module.exports = geocode
+module.exports = geocode;
